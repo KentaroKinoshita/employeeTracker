@@ -10,7 +10,7 @@ The application gives yout the following options:
 * View department salary budgets
 
 ## Installation
----
+
 1. Run `npm install` to install all dependencies
 2. Run `schema.sql` in MySQLWorkbench
     * (Optional) Run `seeds.sql` in MySQLWorkbench
