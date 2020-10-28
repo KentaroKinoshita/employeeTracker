@@ -117,3 +117,48 @@ function viewAllEmpByDept (){
         })
     })
 }
+
+// view all employees by role
+function viewAllEmpByRole(){
+
+    // set global array to store all roles
+    let roleName = [];
+
+    // Create connection using promise-sql
+    promisemysql.createConnection(connectionProperties)
+    .then((conn) => {
+
+        // Query all roles
+        return conn.query('SELECT title FROM role');
+    }).then(function(roles){
+
+        // Place all roles within the roleArry
+        for (i=0; i < roles.length; i++){
+            roleArr.push(roles[i].title);
+        }
+    }).then(() => {
+
+        // Prompt user to select a role
+        inquirer.prompt({
+            name: "role",
+            type: "list",
+            message: "WHICH ROLE WOULD YOU LIKE TO CHECK?",
+            choices: roleName
+        })    
+        .then((answer) => {
+
+            // Query all employees by role selected by user
+            const query = `SELECT e.id AS ID, e.first_name AS 'First Name', e.last_name AS 'Last Name', role.title AS Title, department.name AS Department, role.salary AS Salary, concat(m.first_name, ' ' ,  m.last_name) AS Manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE role.title = '${answer.role}' ORDER BY ID ASC`;
+            connection.query(query, (err, res) => {
+                if(err) return err;
+
+                // show results using console.table
+                console.log("\n");
+                console.table(res);
+                mainMenu();
+            });
+        });
+    });
+}
+
+
