@@ -259,3 +259,72 @@ function addEmp (){
     })
     })
 }
+
+function addRole(){
+
+    // Create array of departments
+    let departmentArr = [];
+
+    // Create connection using promise-sql
+    promisemysql.createConnection(connectionProperties)
+    .then((conn) => {
+
+        // Query all departments
+        return conn.query('SELECT id, name FROM department ORDER BY name ASC');
+
+    }).then((departments) => {
+        
+        // Place all departments in array
+        for (i=0; i < departments.length; i++){
+            departmentArr.push(departments[i].name);
+        }
+
+        return departments;
+    }).then((departments) => {
+        
+        inquirer.prompt([
+            {
+                // Prompt user role title
+                name: "roleTitle",
+                type: "input",
+                message: "Role title: "
+            },
+            {
+                // Prompt user for salary
+                name: "salary",
+                type: "number",
+                message: "Salary: "
+            },
+            {   
+                // Prompt user to select department role is under
+                name: "dept",
+                type: "list",
+                message: "Department: ",
+                choices: departmentArr
+            }]).then((answer) => {
+
+                // Set department ID variable
+                let deptID;
+
+                // get id of department selected
+                for (i=0; i < departments.length; i++){
+                    if (answer.dept == departments[i].name){
+                        deptID = departments[i].id;
+                    }
+                }
+
+                // Added role to role table
+                connection.query(`INSERT INTO role (title, salary, department_id)
+                VALUES ("${answer.roleTitle}", ${answer.salary}, ${deptID})`, (err, res) => {
+                    if(err) return err;
+                    console.log(`\n ROLE ${answer.roleTitle} ADDED...\n`);
+                    mainMenu();
+                });
+
+            });
+
+    });
+    
+}
+
+
