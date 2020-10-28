@@ -67,3 +67,22 @@ function mainMenu () {
         }
     })
 }
+
+function viewAllEmp(){
+    // query to view all employees
+    let query = "SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department, role.salary, concat(m.first_name, ' ' ,  m.last_name)"
+    
+    // query from connection
+    connection.query(query, (err) => {
+        if (err) throw err;
+        console.log("\n");
+
+        // Display query results using console.table
+        console.table(res);
+
+        //Back to main menu
+        mainMenu();
+    })
+}
+
+
