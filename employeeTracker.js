@@ -161,4 +161,101 @@ function viewAllEmpByRole(){
     });
 }
 
+// add employee
 
+function addEmp (){
+    let roleArr = [];
+    let managerArr = [];
+
+    promisemysql.createConnection(connectionProperties)
+    .then((conn) => {
+        return Promise.all([
+            conn.query('SELECT id, title FROM role ORDER BY title ASC'), 
+            conn.query("SELECT employee.id, concat(employee.first_name, ' ' ,  employee.last_name) AS Employee FROM employee ORDER BY Employee ASC")
+        ]);
+    }).then(([roles, managers]) => {
+        
+        for(let i = 0; i < roles.length; i++) {
+            roleArr.push(roles[i].title)
+        }
+
+        for (i=0; i < managers.length; i++){
+            managerArr.push(managers[i].Employee);
+        }
+
+        return Promise.all([roles, managers]);
+    }).then(([roles, managers]) => {
+        managerArr.unshift('--');
+
+        inquirer.prompt([{
+            name: "firstName",
+            type: "input",
+            message: "First name: ",
+            // Validate field is not blank
+            validate: function(input){
+                if (input === ""){
+                    console.log("**FIELD REQUIRED**");
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            }
+        },
+        {
+            // Prompt user of their last name
+            name: "lastName",
+            type: "input",
+            message: "Lastname name: ",
+            // Validate field is not blank
+            validate: function(input){
+                if (input === ""){
+                    console.log("**FIELD REQUIRED**");
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            }
+        },
+        {
+            // Prompt user of their role
+            name: "role",
+            type: "list",
+            message: "What is their role?",
+            choices: roleArr
+        },
+        {
+            name: "manager",
+            type: "list",
+            message: "Who is their manager?",
+            choices: managerArr
+        }
+    ]).then((answer) => {
+        let roleID;
+        let managerID = null;
+
+        for (i=0; i < roles.length; i++){
+            if (answer.role == roles[i].title){
+                roleID = roles[i].id;
+            }
+        }
+
+        // get ID of manager selected
+        for (i=0; i < managers.length; i++){
+            if (answer.manager == managers[i].Employee){
+                managerID = managers[i].id;
+            }
+        }
+
+        connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id)
+        VALUES ("${answer.firstName}", "${answer.lastName}", ${roleID}, ${managerID})`, (err, res) => {
+            if(err) return err;
+
+            // Confirm employee has been added
+            console.log(`\n EMPLOYEE ${answer.firstName} ${answer.lastName} ADDED...\n `);
+            mainMenu();
+        });
+    })
+    })
+}
