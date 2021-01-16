@@ -9,6 +9,8 @@ The application gives yout the following options:
 * Delete employee, role, or department
 * View department salary budgets
 
+Demonstration Video Link: https://drive.google.com/file/d/1UgGdmD4m4HnAL5fP4-MaOga2HiN3BsKT/view?usp=sharing
+
 ## Installation
 
 1. Run `npm install` to install all dependencies
